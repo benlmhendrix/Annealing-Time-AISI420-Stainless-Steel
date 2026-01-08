@@ -9,39 +9,46 @@
     body {
       font-family: Arial, Helvetica, sans-serif;
       padding: 24px;
-      max-width: 480px;
+      max-width: 500px;
       margin: auto;
+    }
+
+    h1 {
+      margin-bottom: 16px;
     }
 
     label {
       display: block;
-      margin-top: 12px;
+      margin-top: 14px;
+      font-weight: bold;
     }
 
     input {
       width: 100%;
       padding: 8px;
-      margin-top: 4px;
+      margin-top: 6px;
       font-size: 16px;
     }
 
     button {
-      margin-top: 16px;
-      padding: 10px;
+      margin-top: 20px;
+      padding: 12px;
       width: 100%;
       font-size: 16px;
       cursor: pointer;
     }
 
     #result {
-      margin-top: 16px;
+      margin-top: 20px;
+      font-size: 18px;
       font-weight: bold;
     }
 
     .note {
-      margin-top: 12px;
+      margin-top: 14px;
       font-size: 12px;
       color: #555;
+      line-height: 1.4;
     }
   </style>
 </head>
@@ -60,20 +67,23 @@
     <input id="hvTarget" type="number" step="0.1">
   </label>
 
-  <button id="calculateBtn">Calculate</button>
+  <button id="calculateBtn">Calculate annealing time</button>
 
-  <p id="result"></p>
+  <div id="result"></div>
 
-  <p class="note">
-    Model: t = (exp((HV₀ − HVᵈ)/β) − 1) / α<br>
-    Assumes fixed material and annealing conditions.
-  </p>
+  <div class="note">
+    Model used:<br>
+    t = (exp((HV₀ − HVᵈ) / β) − 1) / α<br><br>
+    α is expressed in <strong>min⁻¹</strong>, therefore the calculated annealing time is
+    returned in <strong>minutes</strong>.
+  </div>
 
   <script>
     // ===== MODEL CONSTANTS =====
-    // Replace these with your real values
-    const alpha = 0.00118; // 1/min
-    const beta  = 37.47;   // HV
+    // IMPORTANT:
+    // α must be in 1/min so that time is returned in minutes
+    const alpha = 0.0123; // min⁻¹  ← replace with your real α
+    const beta  = 45.0;   // HV     ← replace with your real β
     // ==========================
 
     document.getElementById("calculateBtn").addEventListener("click", () => {
@@ -88,17 +98,19 @@
       }
 
       if (hvTarget >= hvStart) {
-        resultEl.textContent = "Desired hardness must be lower than starting hardness.";
+        resultEl.textContent =
+          "Desired hardness must be lower than starting hardness.";
         return;
       }
 
       if (alpha <= 0 || beta <= 0) {
-        resultEl.textContent = "Invalid model parameters (α or β).";
+        resultEl.textContent =
+          "Invalid model parameters (α or β).";
         return;
       }
 
-      // === YOUR FORMULA ===
-      // t = (exp((HV0 − HVd)/β) − 1) / α
+      // === ANNEALING MODEL ===
+      // t [minutes] = (exp((HV0 − HVd)/β) − 1) / α
       const timeMinutes =
         (Math.exp((hvStart - hvTarget) / beta) - 1) / alpha;
 
